@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS:= -g -Wall -Werror -ansi -pedantic
-SOURCES= main.cpp main.cpp Connector.cpp Cmd.cpp
+SOURCES= main.cpp Connector.cpp Cmd.cpp
 OBJS=$(patsubst %.cpp,bin/%.o,$(SOURCES))
 VPATH=src
 EXECUTABLE=bin/rshell
