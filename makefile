@@ -1,17 +1,23 @@
-all: rshell
+CXX=g++
+CXXFLAGS:= -g -Wall -Werror -ansi -pedantic
+SOURCES= main.cpp Connector.cpp Cmd.cpp
+OBJS=$(patsubst %.cpp,bin/%.o,$(SOURCES))
+VPATH=src
+EXECUTABLE=bin/rshell
 
-rshell: main.o Cmd.o Connector.o 
-	g++ main.o Cmd.o Connector.o -Wall -Werror -ansi -pedantic
-	
-main.o: main.cpp
-	g++ -c main.cpp
-	
-Cmd.o: Cmd.cpp
-	g++ -c Cmd.cpp
 
-Connector.o: Connector.cpp
-	g++ -c Connector.cpp
+all: bin $(EXECUTABLE)
 
-clean: 
-	rm main.o Cmd.o Connector.o 
+bin:
+		mkdir -p bin
+
+$(EXECUTABLE): $(OBJS)
+		$(CXX) $(CXXFLAGS) $(OBJS) -o $@
+
+bin/%.o: %.cpp
+		$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+clean:
+		rm -f $(EXECUTABLE) $(OBJS) *.gch
+		rm -r bin
 	
