@@ -1,6 +1,6 @@
 {
 	"github_url": "https://github.com/Yunlily/rshell.git",
-	"partners": [{
+	"partners": {
 			"name": "Tianhang Zhang",
 			"email": "tzhan028@ucr.edu",
 			"id": 861310813
