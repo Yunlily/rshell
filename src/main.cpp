@@ -33,6 +33,7 @@ int main() {
         Com[0] = cmdQ.front();
         pre = cmd->execute(Com);
         cmdQ.pop ();
+        }
         while(!cmdQ.empty()) {
             bool flag = pre;
             string Op = Conq.front();
@@ -54,7 +55,6 @@ int main() {
         }
         delete cmd;
         delete Con;
-    }
     }
     return 0;
 }
