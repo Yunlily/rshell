@@ -23,15 +23,15 @@ int main() {
         if (input == "quit")
             return 0;
         bool pre = false;
-        Cmd* cmd = new Cmd(input);
-        Connector* Con = new Connector(input);
-        cmd->parse ();
-        queue<char*> cmdQ = cmd->GetCmdQ();
-        queue<string> Conq = Con->getConQ();
+        Cmd cmd = Cmd(input);
+        Connector Con = Connector(input);
+        cmd.parse();
+        queue<char*> cmdQ = cmd.GetCmdQ();
+        queue<string> Conq = Con.getConQ();
         vector<char*> Com(1, NULL);
         if(!cmdQ.empty()) {
         Com[0] = cmdQ.front();
-        pre = cmd->execute(Com);
+        pre = cmd.execute(Com);
         cmdQ.pop ();
         }
         while(!cmdQ.empty()) {
@@ -40,7 +40,7 @@ int main() {
             if(Op == "And") {
                 if(flag == true) {
                     Com[0] = cmdQ.front();
-                    flag = cmd->execute(Com);
+                    flag = cmd.execute(Com);
                     cmdQ.pop();
                 }
                 else {
@@ -49,12 +49,10 @@ int main() {
             }
             else {
                 Com[0] = cmdQ.front();
-                flag = cmd->execute(Com);
+                flag = cmd.execute(Com);
                 cmdQ.pop();
             }
         }
-        delete cmd;
-        delete Con;
     }
     return 0;
 }
