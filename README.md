@@ -14,19 +14,28 @@ Yun Li
 
 
 main.cpp
+
 Connector.cpp
+
 Connector.h
+
 Cmd.cpp
+
 Cmd.h
+
 Base.h
 
 **Introduction**
 ---------------
 use the following commands to compile:
 git clone  https://github.com/Yunlily/rshell.git
+
 cd rshell
+
 git checkout hw2
+
 make
+
 bin/rshell
 
 When executed, this program will prompt the user with the usual '$' prompt to enter commands. And then it takes in the user inputs and pass them into the arguments to parse and execute them.
@@ -49,5 +58,6 @@ The Both class has a left and a right child and always executes both the left an
 **Bugs**
 ----
 
-The program Can’t deal with Command whose length is more than the max_size of c++11 string: 4294967291
+The program can’t deal with Command whose length is more than the max_size of c++11 string: 4294967291
+
 It also can’t Deal with multiple command input starting with operators and containing &&, the logic error may occur.
