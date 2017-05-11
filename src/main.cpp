@@ -20,7 +20,7 @@ int main() {
         cout << "$ ";
         cin.clear ();
         getline(cin, input);
-        if (input == "quit")
+        if (input == "exit")
             return 0;
         bool pre = false;
         Cmd cmd = Cmd(input);
