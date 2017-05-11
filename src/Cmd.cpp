@@ -50,7 +50,9 @@ bool Cmd::execute(vector<char*> Comm) {
         char* tokens = strtok(Comm[0]," ");
         size_t i = 0;
         while(tokens != NULL) {
-            if(tokens != " ")
+            string space = " ";
+            char* sp = const_cast<char*>(space.c_str());
+            if(tokens != sp)
             args[i] = tokens;
             i++;
             tokens = strtok(NULL, " ");
