@@ -5,7 +5,7 @@ CS100
 
 Assignment 2
 
-Tiaanhang Zhang	
+Tianhang Zhang	
 
 Yun Li
 
