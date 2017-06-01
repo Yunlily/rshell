@@ -15,49 +15,39 @@ Yun Li
 
 main.cpp
 
-Connector.cpp
-
-Connector.h
-
-Cmd.cpp
-
-Cmd.h
-
-Base.h
 
 **Introduction**
 ---------------
 use the following commands to compile:
-git clone  https://github.com/Yunlily/rshell.git
-
+git clone https://github.com/Yunlily/rshell.git
 cd rshell
-
-git checkout hw2
-
 make
-
 bin/rshell
 
 When executed, this program will prompt the user with the usual '$' prompt to enter commands. And then it takes in the user inputs and pass them into the arguments to parse and execute them.
 
 The command exit will prompt the program to exit.
 
-**Class Specific Details**
+Licensing information:
 ----------------------
 
-There are 3 classes in this program, a base class "Base",  a class named Connector and a class named Cmd. Also, the main function will ensure the smooth running of the program using these three classes.
+Project source can be downloaded at 
+https://github.com/Yunlily/rshell.git
 
-The main objective for the Base class is to set up the interface with a pure virtual function execute that the other classes use. 
+Author and contribution list: Tianhang Zhang & Yun Lin
 
-The Cmd class is in charge of parsing the user inputs and execute the arguments after parsing. It also uses the class Connector when parsing because it needs to discern "and" and "or" arguments and treat them separately from the other commands.
+All bug reports can be sent to tzhan028@ucr.edu and yli132@ucr.edu
 
-The Connector class mainly deals with the connectors of "and" and "or".
+Summary:
+--------
 
-The Both class has a left and a right child and always executes both the left and right children.
+rshell attempts to mimic a bash terminal shell. rshell accepts bash command executables that exist in /bin
+
+Functionality:
+--------------
+
+The newly updated rshell script allow the user to run the command using the keyword test and "[]" it should also allow the user to use the symbolic version of the command. Test command should work with the connectors && and ||.
 
 **Bugs**
 ----
 
-The program can’t deal with Command whose length is more than the max_size of c++11 string: 4294967291
-
-It also can’t Deal with multiple command input starting with operators and containing &&, the logic error may occur.
