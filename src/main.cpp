@@ -345,6 +345,7 @@ int main() {
                 else if (isConnector(arg)) {
                     if (i + 1 < CCmd.size()) {
                         string next = CCmd[i + 1];
+                        if(!isConnector(next)){
                         char* ne = const_cast<char*>(next.c_str());
                         if ((arg == "&&" && Pre == true) || (arg == "Or" && Pre == false)) {
                             isTest = isTestCmd(ne);
@@ -357,10 +358,10 @@ int main() {
                                 Pre =RunCmd(ne);
                             }
                         }
+                     }
                         i++;
                     }
-                    
-                }
+                    }
                 else {
                         string now = CCmd[i];
                         char* no = const_cast<char*>(now.c_str());
