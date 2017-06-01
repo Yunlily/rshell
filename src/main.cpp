@@ -329,14 +329,15 @@ int main() {
                 if(arg == "("){
                 }
                 else if(arg == ")"){
-                 if(i + 2 < CCmd.size()){
+                 if(i + 2 < CCmd.size()) {
                      string next = CCmd[i + 1];
-                     if(next == "||" && previous){
+                     if(next == "||" && previous) {
                          string nex = CCmd[i + 2];
                          if(nex == "("){
+                            i = i + 2;
                             do{
                                 i++;
-                            }while(CCmd[i] != ")");
+                            } while (CCmd[i] != ")");
                          }
                      }
                  }   
