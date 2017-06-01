@@ -318,7 +318,6 @@ int main() {
             vector<string> CCmd;
             CCmd = Convert(cmd);
             queue<string> Con;
-            stack<string> Par;
             bool isTest = false;
             bool Pre = true;
             unsigned i = 0;
@@ -326,10 +325,22 @@ int main() {
             
             while (i < CCmd.size()) {
                 string arg = CCmd[i];
-                if(isPa(arg)){
-                    Par.push(arg);
+                bool previous = Pre;
+                if(arg == "("){
                 }
-                
+                else if(arg == ")"){
+                 if(i + 2 < CCmd.size()){
+                     string next = CCmd[i + 1];
+                     if(next == "||" && previous){
+                         string nex = CCmd[i + 2];
+                         if(nex == "("){
+                            do{
+                                i++;
+                            }while(CCmd[i] != ")");
+                         }
+                     }
+                 }   
+                }
                 else if (isConnector(arg)) {
                     if (i + 1 < CCmd.size()) {
                         string next = CCmd[i + 1];
