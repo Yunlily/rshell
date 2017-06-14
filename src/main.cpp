@@ -12,27 +12,29 @@
 #include <sys/stat.h>
 #include <queue>
 #include <stack>
+#include <cerrno>
+#include <fcntl.h>
+#include <iostream>
+#include <string.h>
 using namespace std;
-
-//check for parenthesis
-bool isPa(string input) {
-    if (input == "(" || input == ")") {
+const int MAX_ARGS = 256;
+enum PipeRedirect {PIPE, REDIRECT, NEITHER};
+bool isPa(string input){
+    if(input == "(" || input == ")"){
         return true;
     }
     return false;
 }
-
-//parse the string according to the connectors
-queue<char*> parse(string input) {
+queue<char*> parse(string input){
     queue<char*> cmd;
-    if (!input.empty()) {
+    if(!input.empty()) {
         size_t com = input.find("#");
         if (com != string::npos) {
             input.erase(com);
         }
         char* str = const_cast<char*> (input.c_str());
         char* token = strtok(str, ";&|");
-        while (token != NULL) {
+        while(token != NULL) {
             cmd.push(token);
             token = strtok(NULL, ";&|");
         }
@@ -40,19 +42,17 @@ queue<char*> parse(string input) {
     return cmd;
 }
 
-//check for connectors
-bool isConnector(string input) {
-    if (input == "&&" || input == "||" || input == ";" || input == "; ") {
+bool isConnector(string input){
+    if(input == "&&" || input == "||" || input == ";" || input == "; "){
         return true;
     }
     return false;
 }
 
-//parse the string after the parenthesis
-queue<string> parseParen(string input) {
+queue<string> parseParen(string input){
     queue<char*> cmd;
     queue<string> Cmd;
-    if (!input.empty()) {
+    if(!input.empty()) {
         size_t com = input.find("#");
         if (com != string::npos) {
             input.erase(com);
@@ -64,36 +64,36 @@ queue<string> parseParen(string input) {
             token = strtok(NULL, " ");
         }
     }
-    while (!cmd.empty()) {
+    while(!cmd.empty()){
         char* star = cmd.front();
         string s(star);
         size_t p1 = s.find("(");
         size_t p2 = s.find(")");
-        if(p1 > s.size() && p2 > s.size()) {
+        if(p1 > s.size() && p2 > s.size()){
             Cmd.push(s);
         }
-        else {
+        else{
             int k = 0;
-            while (p1 < s.size()) {
+            while(p1 < s.size()){
                 k ++;
                 s.erase(p1,1);
                 p1 = s.find("(");
             }
-            for (int j = 0; j < k; j ++) {
+            for(int j = 0; j < k; j ++){
                 Cmd.push("(");
             }
-            if (p2 > s.size()) {
+            if(p2 > s.size()){
                 Cmd.push(s);
             }
-            else {
+            else{
                 int i = 0;
-                while (p2 < s.size()) {
+                while(p2 < s.size()){
                     i++;
                     s.erase(p2,1);
                     p2 = s.find(")");
                 }
                 Cmd.push(s);
-                for (int j = 0; j < i; j ++) {
+                for(int j = 0; j < i; j ++){
                     Cmd.push(")");
                 }
             }
@@ -103,22 +103,21 @@ queue<string> parseParen(string input) {
     return Cmd;
 }
 
-//get the connectors and push them into the queue
-queue<string> getCon(string input) {
+queue<string> getCon(string input){
     queue<string> con;
-    if (!input.empty()) {
+    if(!input.empty()) {
         size_t com = input.find("#");
         if (com != string::npos) {
             input.erase(com);
         }
         for (size_t it = 0; it < input.size(); it++) {
-            if ((input[it] == '&') &&(input[it+1] == '&')) {
+            if((input[it] == '&') &&(input[it+1] == '&')) {
                 con.push("And");
             }
-            if ((input[it] == ';') &&(input[it+1] == ' ')) {
+            if((input[it] == ';') &&(input[it+1] == ' ')) {
                 con.push("Semi");
             }
-            if ((input[it] == '|') &&(input[it+1] == '|')) {
+            if((input[it] == '|') &&(input[it+1] == '|')) {
                 con.push("Or");
             }
         }
@@ -126,13 +125,12 @@ queue<string> getCon(string input) {
     return con;
 }
 
-//execute command
 bool RunCmd(char* Comm) {
     bool ret = true;
     char* args[100] = {0};
     char* tokens = strtok(Comm," ");
     size_t i = 0;
-    while (tokens != NULL) {
+    while(tokens != NULL) {
         string space = " ";
         char* sp = const_cast<char*>(space.c_str());
         if(tokens != sp)
@@ -141,10 +139,10 @@ bool RunCmd(char* Comm) {
         tokens = strtok(NULL, " ");
     }
     pid_t pid = fork();
-    if (pid == -1) {
+    if(pid == -1) {
         perror("fork");
     }
-    else if (pid == 0) {
+    else if(pid == 0) {
         if(execvp(args[0], args) == -1) {
             perror("exec");
             ret = false;
@@ -162,31 +160,30 @@ bool RunCmd(char* Comm) {
     return ret;
 }
 
-//deal with the test command
-bool RunTestCmd(string input) {
+bool RunTestCmd(string input){
     string command = input;
-    if (command[command.size() - 1] == ' ') {
+    if(command[command.size() - 1] == ' '){
         command.erase(command.size() - 1);
     }
-    if (command.size() <= 7) {
+    if(command.size() <= 7){
         return false;
     }
-    if (command.find("-e") > command.size() && command.find("-f") > command.size() && command.find("-d") > command.size()){
+    if(command.find("-e") > command.size() && command.find("-f") > command.size() && command.find("-d") > command.size()){
         command.insert(5, "-e ");
     }
     string flag = command.substr(5,2);
     string path = command.substr(8);
     struct stat log;
     char* Path = const_cast<char*>(path.c_str());
-    if (!stat(Path, &log)) {
-        if (S_ISREG(log.st_mode)) {
+    if(!stat(Path, &log)) {
+        if(S_ISREG(log.st_mode)){
             if(flag == "-f" || flag == "-e") {
                 return true;
             }
             return false;
         }
-        else if (S_ISDIR(log.st_mode)) {
-            if (flag == "-d" || flag == "-e") {
+        else if(S_ISDIR(log.st_mode)) {
+            if(flag == "-d" || flag == "-e") {
                 return true;
             }
             return false;
@@ -196,27 +193,24 @@ bool RunTestCmd(string input) {
     return false;
 }
 
-//check for either "[]" or test
-bool isTestCmd(char* input) {
+bool isTestCmd(char* input){
     string cmd = input;
-    if (cmd.find("[") < cmd.size() || cmd.find("test") < cmd.size()) {
+    if(cmd.find("[") < cmd.size() || cmd.find("test") < cmd.size()) {
         return true;
     }
     return false;
 }
 
-//use test as a flag
-string TransTestCmd(char* input) {
+string TransTestCmd(char* input){
     string newInput;
     string Input = input;
-    if (Input.find("[") < Input.size() && Input.find("]") < Input.size()) {
+    if(Input.find("[") < Input.size() && Input.find("]") < Input.size()) {
         newInput = "test" + Input.substr(1,Input.size()-3);
         return newInput;
     }
     return Input;
 }
 
-//output either "true" and "false"
 void outResult(bool res) {
     if(res){
         cout << "(True)" << endl;
@@ -225,33 +219,32 @@ void outResult(bool res) {
     cout << "(False)" << endl;
 }
 
-//push the string to the queue according to different command or connectors
-vector<string> Convert(queue<string> cmd) {
+vector<string> Convert(queue<string> cmd){
     vector<string> CCmd;
     vector<string> CCCmd;
-    while (!cmd.empty()) {
+    while(!cmd.empty()){
         CCmd.push_back(cmd.front());
         cmd.pop();
     }
     unsigned i = 0;
-    while (i < CCmd.size()) {
-        if (isConnector(CCmd[i])){
+    while(i < CCmd.size()){
+        if(isConnector(CCmd[i])){
             CCCmd.push_back(CCmd[i]);
             i ++;
         }
-        if (isPa(CCmd[i])) {
+        if(isPa(CCmd[i])){
             CCCmd.push_back(CCmd[i]);
             i ++;
         }
-        else if (CCmd[i] == ";") {
+        else if(CCmd[i] == ";"){
             CCCmd.push_back("; ");
             i ++;
         }
-        else {
+        else{
             unsigned j = i;
             unsigned k = 0;
             string New;
-            while (j < CCmd.size()&&!isConnector(CCmd[j]) && !isPa(CCmd[j])) {
+            while(j < CCmd.size()&&!isConnector(CCmd[j]) && !isPa(CCmd[j])){
                 New = New + CCmd[j] + " ";
                 j ++;
                 k ++;
@@ -264,16 +257,16 @@ vector<string> Convert(queue<string> cmd) {
 }
 
 
-//run the whole command
-int main() {
+
+int execute(){
     string input;
     queue<char*> commands;
     queue<string> connector;
-    do {
+    do{
         cout << "$ ";
         cin.clear();
         getline(cin,input);
-        if (input.find("(") > input.size() && input.find(")") > input.size()) {
+        if(input.find("(") > input.size() && input.find(")") > input.size()){
             connector = getCon(input);
             commands = parse(input);
             bool isTest = false;
@@ -281,29 +274,29 @@ int main() {
             string Con;
             string comm;
             char* arg;
-            if (commands.size() > 0) {
+            if(commands.size() > 0){
                 arg = commands.front();
                 isTest = isTestCmd(arg);
-                if (isTest) {
+                if(isTest){
                     comm = TransTestCmd(arg);
                     Pre = RunTestCmd(comm);
                     outResult(Pre);
                 }
-                else {
+                else{
                     Pre =RunCmd(arg);
                 }
                 commands.pop();
-                while (!commands.empty()) {
+                while(!commands.empty()){
                     Con = connector.front();
                     arg = commands.front();
-                    if ((Con == "And" && Pre == true)|| Con == "Semi" || (Con == "Or" && Pre == false)) {
+                    if((Con == "And" && Pre == true)|| Con == "Semi" || (Con == "Or" && Pre == false)){
                         isTest = isTestCmd(arg);
-                        if (isTest) {
+                        if(isTest){
                             comm = TransTestCmd(arg);
                             Pre = RunTestCmd(comm);
                             outResult(Pre);
                         }
-                        else {
+                        else{
                             Pre =RunCmd(arg);
                         }
                     }
@@ -312,7 +305,7 @@ int main() {
                 }
             }
         }
-        else {
+        else{
             queue<string> cmd;
             cmd = parseParen(input);
             vector<string> CCmd;
@@ -323,62 +316,256 @@ int main() {
             unsigned i = 0;
             string comm;
             
-            while (i < CCmd.size()) {
+            while(i < CCmd.size()){
                 string arg = CCmd[i];
                 bool previous = Pre;
                 if(arg == "("){
                 }
                 else if(arg == ")"){
-                 if(i + 2 < CCmd.size()) {
-                     string next = CCmd[i + 1];
-                     if(next == "||" && previous) {
-                         string nex = CCmd[i + 2];
-                         if(nex == "("){
-                            i = i + 2;
+                    if(i + 2 < CCmd.size()){
+                        string next = CCmd[i + 1];
+                        if(next == "||" && previous == true){
+                            string nex = CCmd[i + 2];
+                            if(nex == "("){
                             do{
                                 i++;
-                            } while (CCmd[i] != ")");
-                         }
-                     }
-                 }   
+                                }while(CCmd[i] != ")");
+                            }
+                        }
+                    }
                 }
-                else if (isConnector(arg)) {
-                    if (i + 1 < CCmd.size()) {
+                else if(isConnector(arg)){
+                    if(i + 1 < CCmd.size()){
                         string next = CCmd[i + 1];
                         if(!isConnector(next)){
                         char* ne = const_cast<char*>(next.c_str());
-                        if ((arg == "&&" && Pre == true) || (arg == "Or" && Pre == false)) {
+                        if((arg == "&&" && Pre == true) || arg == "Semi" || (arg == "Or" && Pre == false)){
                             isTest = isTestCmd(ne);
-                            if (isTest) {
+                            if(isTest){
                                 comm = TransTestCmd(ne);
                                 Pre = RunTestCmd(comm);
                                 outResult(Pre);
                             }
-                            else {
+                            else{
                                 Pre =RunCmd(ne);
                             }
-                        }
-                     }
-                        i++;
                     }
-                    }
+                }
+                    i++;
+                }
+                }
                 else {
                         string now = CCmd[i];
                         char* no = const_cast<char*>(now.c_str());
                         isTest = isTestCmd(no);
-                        if (isTest) {
+                        if(isTest){
                             comm = TransTestCmd(no);
                             Pre = RunTestCmd(comm);
                             outResult(Pre);
                         }
-                        else {
+                        else{
                             Pre =RunCmd(no);
                         }
                     }
                 i++;
             }
         }
-    } while (input != "exit");
+    }while(input != "exit");
     return 0;
 }
 
+
+
+
+
+PipeRedirect parse_command(int argc, char** argv, char** cmd1, char** cmd2) {
+    PipeRedirect result = NEITHER;
+    int split = -1;
+    for (int i=0; i<argc; i++) {
+        if (strcmp(argv[i], "|") == 0) {
+            result = PIPE;
+            split = i;
+        } else if ((strcmp(argv[i], ">>") == 0) || (strcmp(argv[i], ">") == 0)) {
+            result = REDIRECT;
+            split = i;
+        }
+    }
+    if (result != NEITHER) {
+        for (int i=0; i<split; i++)
+            cmd1[i] = argv[i];
+        int count = 0;
+        for (int i=split+1; i<argc; i++) {
+            cmd2[count] = argv[i];
+            count++;
+        }
+        cmd1[split] = NULL;
+        cmd2[count] = NULL;
+    }
+    return result;
+}
+
+
+void pipe_cmd(char** cmd1, char** cmd2) {
+    int fds[2];
+    pipe(fds);
+    pid_t pid;
+    
+    if (fork() == 0) {
+        
+        dup2(fds[0], 0);
+        
+        close(fds[1]);
+        
+        execvp(cmd2[0], cmd2);
+        perror("execvp failed");
+        
+    } else if ((pid = fork()) == 0) {
+        
+        dup2(fds[1], 1);
+        
+        
+        close(fds[0]);
+        
+        
+        execvp(cmd1[0], cmd1);
+        perror("execvp failed");
+        
+        
+    } else
+        waitpid(pid, NULL, 0);
+}
+
+
+int read_args(char **argv){
+    char *cstr;
+    string arg;
+    int argc = 0;
+    while (cin >> arg) {
+        if (arg == "exit")
+            return 0;
+        cstr = new char[arg.size()+1];
+        strcpy(cstr, arg.c_str());
+        argv[argc] = cstr;
+        argc++;
+        if (cin.get() == '\n')
+            break;
+    }
+    argv[argc] = NULL;
+    return argc;
+}
+
+void redirect_cmd(char** cmd, char** file) {
+    int fds[2];
+    int count;
+    int fd;
+    char c;
+    pid_t pid;
+    
+    pipe(fds);
+    
+    
+    if (fork() == 0) {
+        
+        fd = open(file[0], O_RDWR | O_CREAT, 0666);
+        
+        
+        if (fd < 0) {
+            printf("Error: %s\n", strerror(errno));
+            return;
+        }
+        
+        dup2(fds[0], 0);
+        
+        
+        close(fds[1]);
+        
+        
+        while ((count = read(0, &c, 1)) > 0)
+            write(fd, &c, 1);
+        
+        
+        execlp("echo", "echo", NULL);
+        
+        
+    } else if ((pid = fork()) == 0) {
+        dup2(fds[1], 1);
+        
+        
+        close(fds[0]);
+        
+        
+        execvp(cmd[0], cmd);
+        perror("execvp failed");
+        
+        
+    } else {
+        waitpid(pid, NULL, 0);
+        close(fds[0]);
+        close(fds[1]);
+    }
+}
+
+void run_cmd(int argc, char** argv) {
+    pid_t pid;
+    const char *amp;
+    amp = "&";
+    bool found_amp = false;
+    
+    
+    if (strcmp(argv[argc-1], amp) == 0)
+        found_amp = true;
+    
+    
+    pid = fork();
+    
+    
+    if (pid < 0)
+        perror("Error (pid < 0)");
+    
+    
+    else if (pid == 0) {
+        
+        if (found_amp) {
+            argv[argc-1] = NULL;
+            argc--;
+        }
+        
+        execvp(argv[0], argv);
+        perror("execvp error");
+        
+        
+    } else if (!found_amp)
+        waitpid(pid, NULL, 0);
+}
+
+
+
+
+int main() {
+    char *argv[MAX_ARGS], *cmd1[MAX_ARGS], *cmd2[MAX_ARGS];
+    PipeRedirect pipe_redirect;
+    int argc;
+    
+    
+    while (true) {
+        cout << "$ ";
+        
+        argc = read_args(argv);
+        if(argc == 0)
+            return 0;
+        
+        pipe_redirect = parse_command(argc, argv, cmd1, cmd2);
+        
+        if (pipe_redirect == PIPE)
+            pipe_cmd(cmd1, cmd2);
+        else if (pipe_redirect == REDIRECT)
+            redirect_cmd(cmd1, cmd2);
+        else
+            run_cmd(argc, argv);
+        
+        for (int i=0; i<argc; i++)
+            argv[i] = NULL;
+    }
+    
+    return 0;
+}
