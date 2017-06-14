@@ -18,8 +18,11 @@ All bug reports can be sent to tzhan028@ucr.edu and yli132@ucr.edu
 How to run the program: run the following lines in terminal: 
 
 git clone https://github.com/Yunlily/rshell.git
+
 cd rshell
+
 make
+
 bin/rshell
 
 Summary:
@@ -31,6 +34,7 @@ Functionality:
 --------------
 
 The newly updated rshell script allow the user to run the command using the keyword test and it should allow the user to use the symbolic version of the command. Test command should work with the connectors && and ||.
+Added the function so that the rshell can deal with cat < file | tr a-z A-Z | cat > file2
 
 Bugs:
 -----
