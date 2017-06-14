@@ -19,13 +19,15 @@
 using namespace std;
 const int MAX_ARGS = 256;
 enum PipeRedirect {PIPE, REDIRECT, NEITHER};
+//determine where the string is part of a parenthesis or not.
 bool isPa(string input){
-    if(input == "(" || input == ")"){
+    if(input == "(" || input == ")") {
         return true;
     }
     return false;
 }
-queue<char*> parse(string input){
+//parse the input so that it will not contain comments
+queue<char*> parse(string input) {
     queue<char*> cmd;
     if(!input.empty()) {
         size_t com = input.find("#");
@@ -41,15 +43,15 @@ queue<char*> parse(string input){
     }
     return cmd;
 }
-
-bool isConnector(string input){
-    if(input == "&&" || input == "||" || input == ";" || input == "; "){
+//determine whether the string is a connector or not
+bool isConnector(string input) {
+    if(input == "&&" || input == "||" || input == ";" || input == "; ") {
         return true;
     }
     return false;
 }
-
-queue<string> parseParen(string input){
+//parse the input who has parenthesis inside
+queue<string> parseParen(string input) {
     queue<char*> cmd;
     queue<string> Cmd;
     if(!input.empty()) {
@@ -64,36 +66,36 @@ queue<string> parseParen(string input){
             token = strtok(NULL, " ");
         }
     }
-    while(!cmd.empty()){
+    while(!cmd.empty()) {
         char* star = cmd.front();
         string s(star);
         size_t p1 = s.find("(");
         size_t p2 = s.find(")");
-        if(p1 > s.size() && p2 > s.size()){
+        if(p1 > s.size() && p2 > s.size()) {
             Cmd.push(s);
         }
         else{
             int k = 0;
-            while(p1 < s.size()){
+            while(p1 < s.size()) {
                 k ++;
                 s.erase(p1,1);
                 p1 = s.find("(");
             }
-            for(int j = 0; j < k; j ++){
+            for(int j = 0; j < k; j ++) {
                 Cmd.push("(");
             }
-            if(p2 > s.size()){
+            if(p2 > s.size()) {
                 Cmd.push(s);
             }
             else{
                 int i = 0;
-                while(p2 < s.size()){
+                while(p2 < s.size()) {
                     i++;
                     s.erase(p2,1);
                     p2 = s.find(")");
                 }
                 Cmd.push(s);
-                for(int j = 0; j < i; j ++){
+                for(int j = 0; j < i; j ++) {
                     Cmd.push(")");
                 }
             }
@@ -102,8 +104,8 @@ queue<string> parseParen(string input){
     }
     return Cmd;
 }
-
-queue<string> getCon(string input){
+//Transfer connector into string and push it into queue
+queue<string> getCon(string input) {
     queue<string> con;
     if(!input.empty()) {
         size_t com = input.find("#");
@@ -124,7 +126,7 @@ queue<string> getCon(string input){
     }
     return con;
 }
-
+//Run normal command
 bool RunCmd(char* Comm) {
     bool ret = true;
     char* args[100] = {0};
@@ -159,16 +161,16 @@ bool RunCmd(char* Comm) {
     }
     return ret;
 }
-
-bool RunTestCmd(string input){
+//run command which contains test
+bool RunTestCmd(string input) {
     string command = input;
-    if(command[command.size() - 1] == ' '){
+    if(command[command.size() - 1] == ' ') {
         command.erase(command.size() - 1);
     }
-    if(command.size() <= 7){
+    if(command.size() <= 7) {
         return false;
     }
-    if(command.find("-e") > command.size() && command.find("-f") > command.size() && command.find("-d") > command.size()){
+    if(command.find("-e") > command.size() && command.find("-f") > command.size() && command.find("-d") > command.size()) {
         command.insert(5, "-e ");
     }
     string flag = command.substr(5,2);
@@ -192,16 +194,16 @@ bool RunTestCmd(string input){
     }
     return false;
 }
-
-bool isTestCmd(char* input){
+//determine where the command contains test
+bool isTestCmd(char* input) {
     string cmd = input;
     if(cmd.find("[") < cmd.size() || cmd.find("test") < cmd.size()) {
         return true;
     }
     return false;
 }
-
-string TransTestCmd(char* input){
+//transfer the [] test command to another one
+string TransTestCmd(char* input) {
     string newInput;
     string Input = input;
     if(Input.find("[") < Input.size() && Input.find("]") < Input.size()) {
@@ -210,7 +212,7 @@ string TransTestCmd(char* input){
     }
     return Input;
 }
-
+//cout result according to result.
 void outResult(bool res) {
     if(res){
         cout << "(True)" << endl;
@@ -218,25 +220,25 @@ void outResult(bool res) {
     }
     cout << "(False)" << endl;
 }
-
-vector<string> Convert(queue<string> cmd){
+//convter the command queue to vector
+vector<string> Convert(queue<string> cmd) {
     vector<string> CCmd;
     vector<string> CCCmd;
-    while(!cmd.empty()){
+    while(!cmd.empty()) {
         CCmd.push_back(cmd.front());
         cmd.pop();
     }
     unsigned i = 0;
-    while(i < CCmd.size()){
-        if(isConnector(CCmd[i])){
+    while(i < CCmd.size()) {
+        if(isConnector(CCmd[i])) {
             CCCmd.push_back(CCmd[i]);
             i ++;
         }
-        if(isPa(CCmd[i])){
+        if(isPa(CCmd[i])) {
             CCCmd.push_back(CCmd[i]);
             i ++;
         }
-        else if(CCmd[i] == ";"){
+        else if(CCmd[i] == ";") {
             CCCmd.push_back("; ");
             i ++;
         }
@@ -244,7 +246,7 @@ vector<string> Convert(queue<string> cmd){
             unsigned j = i;
             unsigned k = 0;
             string New;
-            while(j < CCmd.size()&&!isConnector(CCmd[j]) && !isPa(CCmd[j])){
+            while(j < CCmd.size()&&!isConnector(CCmd[j]) && !isPa(CCmd[j])) {
                 New = New + CCmd[j] + " ";
                 j ++;
                 k ++;
@@ -257,8 +259,8 @@ vector<string> Convert(queue<string> cmd){
 }
 
 
-
-int execute(){
+//execute
+int execute() {
     string input;
     queue<char*> commands;
     queue<string> connector;
@@ -266,7 +268,7 @@ int execute(){
         cout << "$ ";
         cin.clear();
         getline(cin,input);
-        if(input.find("(") > input.size() && input.find(")") > input.size()){
+        if(input.find("(") > input.size() && input.find(")") > input.size()) {
             connector = getCon(input);
             commands = parse(input);
             bool isTest = false;
@@ -274,24 +276,24 @@ int execute(){
             string Con;
             string comm;
             char* arg;
-            if(commands.size() > 0){
+            if(commands.size() > 0) {
                 arg = commands.front();
                 isTest = isTestCmd(arg);
-                if(isTest){
+                if(isTest) {
                     comm = TransTestCmd(arg);
                     Pre = RunTestCmd(comm);
                     outResult(Pre);
                 }
-                else{
+                else {
                     Pre =RunCmd(arg);
                 }
                 commands.pop();
-                while(!commands.empty()){
+                while(!commands.empty()) {
                     Con = connector.front();
                     arg = commands.front();
-                    if((Con == "And" && Pre == true)|| Con == "Semi" || (Con == "Or" && Pre == false)){
+                    if((Con == "And" && Pre == true)|| Con == "Semi" || (Con == "Or" && Pre == false)) {
                         isTest = isTestCmd(arg);
-                        if(isTest){
+                        if(isTest) {
                             comm = TransTestCmd(arg);
                             Pre = RunTestCmd(comm);
                             outResult(Pre);
@@ -316,17 +318,17 @@ int execute(){
             unsigned i = 0;
             string comm;
             
-            while(i < CCmd.size()){
+            while(i < CCmd.size()) {
                 string arg = CCmd[i];
                 bool previous = Pre;
                 if(arg == "("){
                 }
-                else if(arg == ")"){
-                    if(i + 2 < CCmd.size()){
+                else if(arg == ")") {
+                    if(i + 2 < CCmd.size()) {
                         string next = CCmd[i + 1];
-                        if(next == "||" && previous == true){
+                        if(next == "||" && previous == true) {
                             string nex = CCmd[i + 2];
-                            if(nex == "("){
+                            if(nex == "(") {
                             do{
                                 i++;
                                 }while(CCmd[i] != ")");
@@ -334,14 +336,14 @@ int execute(){
                         }
                     }
                 }
-                else if(isConnector(arg)){
-                    if(i + 1 < CCmd.size()){
+                else if(isConnector(arg)) {
+                    if(i + 1 < CCmd.size()) {
                         string next = CCmd[i + 1];
-                        if(!isConnector(next)){
+                        if(!isConnector(next)) {
                         char* ne = const_cast<char*>(next.c_str());
-                        if((arg == "&&" && Pre == true) || arg == "Semi" || (arg == "Or" && Pre == false)){
+                        if((arg == "&&" && Pre == true) || arg == "Semi" || (arg == "Or" && Pre == false)) {
                             isTest = isTestCmd(ne);
-                            if(isTest){
+                            if(isTest) {
                                 comm = TransTestCmd(ne);
                                 Pre = RunTestCmd(comm);
                                 outResult(Pre);
@@ -358,7 +360,7 @@ int execute(){
                         string now = CCmd[i];
                         char* no = const_cast<char*>(now.c_str());
                         isTest = isTestCmd(no);
-                        if(isTest){
+                        if(isTest) {
                             comm = TransTestCmd(no);
                             Pre = RunTestCmd(comm);
                             outResult(Pre);
@@ -377,7 +379,7 @@ int execute(){
 
 
 
-
+//parse the command which contains >>,> or |
 PipeRedirect parse_command(int argc, char** argv, char** cmd1, char** cmd2) {
     PipeRedirect result = NEITHER;
     int split = -1;
@@ -404,7 +406,7 @@ PipeRedirect parse_command(int argc, char** argv, char** cmd1, char** cmd2) {
     return result;
 }
 
-
+//pipe the command
 void pipe_cmd(char** cmd1, char** cmd2) {
     int fds[2];
     pipe(fds);
@@ -436,7 +438,7 @@ void pipe_cmd(char** cmd1, char** cmd2) {
 }
 
 
-int read_args(char **argv){
+int read_args(char **argv) {
     char *cstr;
     string arg;
     int argc = 0;
@@ -454,6 +456,7 @@ int read_args(char **argv){
     return argc;
 }
 
+//redirect the command
 void redirect_cmd(char** cmd, char** file) {
     int fds[2];
     int count;
@@ -505,6 +508,7 @@ void redirect_cmd(char** cmd, char** file) {
     }
 }
 
+//run command
 void run_cmd(int argc, char** argv) {
     pid_t pid;
     const char *amp;
