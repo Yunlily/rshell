@@ -1,14 +1,15 @@
-{
-	"github_url": "https://github.com/Yunlily/rshell.git",
-	"partners": {
-			"name": "Tianhang Zhang",
-			"email": "tzhan028@ucr.edu",
-			"id": 861310813
-		},
-		{
-			"name": "Yun Li",
-			"email": "yli132@ucr.edu",
-			"id ": 861305967
-		}
-	]
+{  
+   "github_url":"https://www.github.com/Yunlily/rshell.git",
+   "partners":[  
+      {  
+         "name":"Tianhang Zhang",
+         "email":"tzhan028@ucr.edu",
+         "id":861310813
+      },
+      {  
+         "name":"Yun Li",
+         "email ":"yli132@ucr.edu",
+         "id ":861305967
+      }
+   ]
 }
