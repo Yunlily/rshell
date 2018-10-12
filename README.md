@@ -11,7 +11,7 @@ Licensing information:
 Project source can be downloaded at 
 https://github.com/Yunlily/rshell.git
 
-Author and contribution list: Tianhang Zhang & Yun Lin
+Author and contribution list: Tianhang Zhang & Yun Li
 
 All bug reports can be sent to tzhan028@ucr.edu and yli132@ucr.edu
 
